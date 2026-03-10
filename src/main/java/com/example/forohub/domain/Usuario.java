@@ -1,14 +1,19 @@
 package com.example.forohub.domain;
 
 import jakarta.persistence.*;
-import org.springframework.security.core.GrantedAuthority;
+import lombok.*;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 import java.util.List;
 
-@Entity
 @Table(name = "usuarios")
+@Entity(name = "Usuario")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class Usuario implements UserDetails {
 
     @Id
@@ -18,16 +23,9 @@ public class Usuario implements UserDetails {
     private String login;
     private String clave;
 
-    public Usuario() {}
-
-    public Usuario(String login, String clave) {
-        this.login = login;
-        this.clave = clave;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(); // sin roles por ahora
+        return List.of();
     }
 
     @Override
@@ -58,5 +56,9 @@ public class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String getLogin() {
+        return login;
     }
 }

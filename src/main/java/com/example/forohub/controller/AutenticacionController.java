@@ -1,36 +1,38 @@
 package com.example.forohub.controller;
 
+import com.example.forohub.domain.Usuario;
 import com.example.forohub.dto.DatosAutenticacionUsuario;
+import com.example.forohub.dto.DatosTokenJWT;
+import com.example.forohub.security.TokenService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.*;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/login")
 public class AutenticacionController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthenticationManager manager;
 
-    @PostMapping("/login")
-    public ResponseEntity autenticarUsuario(
-            @RequestBody @Valid DatosAutenticacionUsuario datos) {
+    @Autowired
+    private TokenService tokenService;
 
-        Authentication authToken =
-                new UsernamePasswordAuthenticationToken(
-                        datos.login(),
-                        datos.clave()
-                );
+    @PostMapping
+    public DatosTokenJWT autenticarUsuario(@RequestBody @Valid DatosAutenticacionUsuario datos) {
 
-        var autenticacion = authenticationManager.authenticate(authToken);
+        var authenticationToken = new UsernamePasswordAuthenticationToken(
+                datos.login(),
+                datos.clave()
+        );
 
-        return ResponseEntity.ok().build();
+        var autenticacion = manager.authenticate(authenticationToken);
+
+        var usuario = (Usuario) autenticacion.getPrincipal();
+
+        var token = tokenService.generarToken(usuario);
+
+        return new DatosTokenJWT(token);
     }
 }
